@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 import pandas as pd
 
-REMOTE_MONGO = 'mongodb+srv://keem:zmxncb@cluster0-ccgud.gcp.mongodb.net'
+REMOTE_MONGO = 'mongodb+srv://keem:<pswd>@cluster0-ccgud.gcp.mongodb.net'
 LOCAL_MONGO = 'mongodb://localhost:27017/'
 
 class DBUtil:
