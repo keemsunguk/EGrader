@@ -50,12 +50,12 @@ def main():
         textcat = nlp.get_pipe("textcat")
 
     # add label to text classifier
+    textcat.add_label("0")
     textcat.add_label("1")
-#    textcat.add_label("2")
-#    textcat.add_label("3")
+    textcat.add_label("2")
 #    textcat.add_label("4")
 #    textcat.add_label("5")
-    textcat.add_label("6")
+#    textcat.add_label("6")
 
     # load the SAT dataset
     print("Loading SAT data...")
@@ -78,7 +78,7 @@ def main():
             with options['init_tok2vec'].open("rb") as file_:
                 textcat.model.tok2vec.from_bytes(file_.read())
         print("Training the model...")
-        print("{:^5}\t{:^5}\t{:^5}\t{:^5}".format("LOSS", "P", "R", "F"))
+        print("{:^5}\t{:^5}".format("LOSS", "Accuracy"))
         batch_sizes = compounding(4.0, 32.0, 1.001)
         for i in range(n_iter):
             losses = {}
@@ -92,11 +92,9 @@ def main():
                 # evaluate on the dev data split off in load_data()
                 scores = evaluate(nlp.tokenizer, textcat, dev_texts, dev_cats)
             print(
-                "{0:.3f}\t{1:.3f}\t{2:.3f}\t{3:.3f}".format(  # print a simple table
+                "{0:.3f}\t{1:.3f}".format(  # print a simple table
                     losses["textcat"],
-                    scores["textcat_p"],
-                    scores["textcat_r"],
-                    scores["textcat_f"],
+                    scores["textcat_a"],
                 )
             )
 
@@ -118,12 +116,20 @@ def main():
 
 
 def load_data(df, limit=0, split=0.8):
+    def make_label_dict(r):
+        if r == "0":
+            return {"0": True, "1": False, "2": False}
+        elif r == "1":
+            return {"0": False, "1": True, "2": False}
+        else:
+            return {"0": False, "1": False, "2": True}
+
     # Partition off part of the train data for evaluation
     train_data = [(v[0], v[1]) for k, v in df.iterrows()]
     random.shuffle(train_data)
     train_data = train_data[-limit:]
     texts, rate = zip(*train_data)
-    labels = [{"1": True, "6": False} if r == "1" else {"1": False, "6": True} for r in rate]
+    labels = [make_label_dict(x) for x in rate]
     split = int(len(train_data) * split)
     return (texts[:split], labels[:split]), (texts[split:], labels[split:])
 
@@ -136,26 +142,16 @@ def evaluate(tokenizer, textcat, texts, cats):
     tn = 0.0  # True negatives
     for i, doc in enumerate(textcat.pipe(docs)):
         gold = cats[i]
-        for label, score in doc.cats.items():
-            if label not in gold:
-                continue
-            if label == "1":
-                continue
-            if score >= 0.5 and gold[label] >= 0.5:
-                tp += 1.0
-            elif score >= 0.5 and gold[label] < 0.5:
-                fp += 1.0
-            elif score < 0.5 and gold[label] < 0.5:
-                tn += 1
-            elif score < 0.5 and gold[label] >= 0.5:
-                fn += 1
-    precision = tp / (tp + fp)
-    recall = tp / (tp + fn)
-    if (precision + recall) == 0:
-        f_score = 0.0
-    else:
-        f_score = 2 * (precision * recall) / (precision + recall)
-    return {"textcat_p": precision, "textcat_r": recall, "textcat_f": f_score}
+        predicted = [[l, s] for l, s in doc.cats.items()]
+        labels, scores = zip(*predicted)
+        p = labels[scores.index(max(scores))]
+
+        if gold[p]:
+            tp += 1.0
+        else:
+            fp += 1
+    accuracy = tp / (tp + fp)
+    return {"textcat_a": accuracy}
 
 
 if __name__ == "__main__":
