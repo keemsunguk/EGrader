@@ -1,0 +1,6 @@
+{
+  "Projects": "/Users/keemsunguk/Projects/",
+  "EGraderRoot": "EssayGrader/",
+  "RemoteMongo": "mongodb+srv://{uid}:{pswd}@cluster0-ccgud.gcp.mongodb.net",
+  "LocalMongo": "mongodb://localhost:27017/"
+}
