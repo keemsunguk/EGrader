@@ -67,7 +67,13 @@ class DBUtil:
         )
 
         def int2text(i):
-            return "{:d}".format(int((i-1)/2))
+            if i in [0,1,2,3]:
+                return "0"
+            elif i in [4]:
+                return "1"
+            else:
+                return "2"
+    #            return "{:d}".format(int((i-1)/2))
 
         df[1] = df.apply(lambda x: int2text(round(x[1])), axis=1)
         if merge_0_1:
