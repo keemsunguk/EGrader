@@ -4,7 +4,7 @@ import os
 try:
     PROJECT_ROOT = os.environ['PROJECT_ROOT']
 except:
-    PROJECT_ROOT = '/Users/keemsunguk/Projects'
+    PROJECT_ROOT = '/Users/keemsunguk/Projects/EssayGrader/'
 
 '''
 try:
@@ -22,7 +22,7 @@ class Config:
 
     def __init__(self):
         try:
-            with open(PROJECT_ROOT+"/EssayGrader/config/config.json", "r") as confin:
+            with open(PROJECT_ROOT+"/config/config.json", "r") as confin:
                 self.conf = json.load(confin)
         except Exception as e:
             print("Config Error: Check {ProjectRoot}/config/config.json: %s", str(e))
