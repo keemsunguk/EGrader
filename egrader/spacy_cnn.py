@@ -13,7 +13,7 @@ conf = config.get_config()
 
 options = {
     'model': "en_core_web_lg",
-    'output_dir': conf['Projects']+conf['EGraderRoot']+"data",
+    'output_dir': conf['Projects']+"/data",
     'n_texts': 3000,
     'n_iter': 20,
     'init_tok2vec': None
