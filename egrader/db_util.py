@@ -67,9 +67,9 @@ class DBUtil:
         )
 
         def int2text(i):
-            if i in [0,1,2,3]:
+            if i in [0, 1, 2]:
                 return "0"
-            elif i in [4]:
+            elif i in [3, 4]:
                 return "1"
             else:
                 return "2"

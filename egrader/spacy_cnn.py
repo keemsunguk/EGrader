@@ -102,12 +102,8 @@ class SpacyCNN:
 
     def format_spacy_data(self, df, limit=0, split=0.8):
         def make_label_dict(r):
-            if r == "0":
-                return {"0": True, "1": False, "2": False}
-            elif r == "1":
-                return {"0": False, "1": True, "2": False}
-            else:
-                return {"0": False, "1": False, "2": True}
+            rdict = {'0': False, '1': False, '2': False, '3': False, '4': False, '5': False, '6': False, r: True}
+            return rdict
 
         # Partition off part of the train data for evaluation
         train_data = [(v[0], v[1]) for k, v in df.iterrows()]
@@ -129,7 +125,7 @@ class SpacyCNN:
                     self.textcat.model.tok2vec.from_bytes(file_.read())
             print("Training the model...")
             print("{:^5}\t{:^5}".format("LOSS", "Accuracy"))
-            batch_sizes = compounding(4.0, 32.0, 1.001)
+            batch_sizes = compounding(4.0, 64.0, 1.001)
             for i in range(self.n_iter):
                 losses = {}
                 # batch up the examples using spaCy's minibatch
@@ -137,7 +133,7 @@ class SpacyCNN:
                 batches = minibatch(train_data, size=batch_sizes)
                 for batch in batches:
                     texts, annotations = zip(*batch)
-                    self.nlp.update(texts, annotations, sgd=self.optimizer, drop=0.2, losses=losses)
+                    self.nlp.update(texts, annotations, sgd=self.optimizer, drop=0.3, losses=losses)
                 with self.textcat.model.use_params(self.optimizer.averages):
                     # evaluate on the dev data split off in load_data()
                     scores = evaluate(

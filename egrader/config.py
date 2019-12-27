@@ -1,4 +1,17 @@
 import json
+import os
+
+try:
+    PROJECT_ROOT = os.environ['PROJECT_ROOT']
+except:
+    PROJECT_ROOT = '/Users/keemsunguk/Projects'
+
+try:
+    UID = os.environ['UID']
+    PSWD = os.environ['PSWD']
+except:
+    UID = input("Enter UID:")
+    PSWD = input("Enter Password:")
 
 
 class Config:
@@ -8,15 +21,15 @@ class Config:
 
     def __init__(self):
         try:
-            with open("/Users/keemsunguk/Projects/EssayGrader/config/config.json", "r") as confin:
+            with open(PROJECT_ROOT+"/EssayGrader/config/config.json", "r") as confin:
                 self.conf = json.load(confin)
         except Exception as e:
             print("Config Error: Check {ProjectRoot}/config/config.json: %s", str(e))
             # default
             self.conf = {
-                "Projects": "/Users/keemsunguk/Projects/",
+                "Projects": PROJECT_ROOT,
                 "EGraderRoot": "EssayGrader/",
-                "RemoteMongo": "mongodb+srv://{uid}:{password}@cluster0-ccgud.gcp.mongodb.net",
+                "RemoteMongo": "mongodb+srv://"+UID+":"+PSWD+"@cluster0-ccgud.gcp.mongodb.net",
                 "LocalMongo": "mongodb://localhost:27017/",
             }
 
