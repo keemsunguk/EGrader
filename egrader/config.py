@@ -6,13 +6,14 @@ try:
 except:
     PROJECT_ROOT = '/Users/keemsunguk/Projects'
 
+'''
 try:
     UID = os.environ['UID']
     PSWD = os.environ['PSWD']
 except:
     UID = input("Enter UID:")
     PSWD = input("Enter Password:")
-
+'''
 
 class Config:
     """
