@@ -8,22 +8,25 @@ LOCAL_MONGO = conf['LocalMongo']
 
 
 class DBUtil:
-    def __init__(self):
+    def __init__(self, local_db=False):
         remote_client = MongoClient(REMOTE_MONGO)
-        local_client = MongoClient(LOCAL_MONGO)
         self.redb = remote_client['nlp']
-        self.ledb = local_client['essay']
-        self.local_ec = self.ledb['essay']
         self.remote_ec = self.redb['essays']
+        self.local_db = local_db
+        if self.local_db:
+            local_client = MongoClient(LOCAL_MONGO)
+            self.ledb = local_client['essay']
+            self.local_ec = self.ledb['essay']
 
     def describe_db(self):
         try:
-            print('==== LOCAL ====')
-            print(self.ledb.list_collection_names())
-            print('Total Essay:', self.local_ec.count_documents({}))
-            print('Total SAT:', self.local_ec.count_documents({'$and': [{'type': 'SAT'}, {'rate': {'$gte': 0}}]}))
-            print('Total TOEFL:', self.local_ec.count_documents({'$and': [{'type': 'TOEFL'}, {'rate': {'$gt': 0}}]}))
-            print('Total GRE:', self.local_ec.count_documents({'$and': [{'type': 'GRE'}, {'rate': {'$gte': 0}}]}))
+            if self.local_db:
+                print('==== LOCAL ====')
+                print(self.ledb.list_collection_names())
+                print('Total Essay:', self.local_ec.count_documents({}))
+                print('Total SAT:', self.local_ec.count_documents({'$and': [{'type': 'SAT'}, {'rate': {'$gte': 0}}]}))
+                print('Total TOEFL:', self.local_ec.count_documents({'$and': [{'type': 'TOEFL'}, {'rate': {'$gt': 0}}]}))
+                print('Total GRE:', self.local_ec.count_documents({'$and': [{'type': 'GRE'}, {'rate': {'$gte': 0}}]}))
         except Exception as e:
             print("No local mongo connection found: %s", str(e))
 
