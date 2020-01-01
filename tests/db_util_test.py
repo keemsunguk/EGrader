@@ -9,7 +9,7 @@ logger = logging.getLogger('DBTest')
 
 class TestDBUtil(unittest.TestCase):
     def setUp(self):
-        self.db_util = DBUtil()
+        self.db_util = DBUtil(local_db=True)
         self.expected = {'RemoteSAT': 3263, 'RemoteTOEFL': 4684, 'RemoteGRE': 6651, 'LocalTotal': 32246}
 
     def test_remote(self):

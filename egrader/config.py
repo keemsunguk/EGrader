@@ -6,15 +6,6 @@ try:
 except:
     PROJECT_ROOT = '/Users/keemsunguk/Projects/EssayGrader/'
 
-'''
-try:
-    UID = os.environ['UID']
-    PSWD = os.environ['PSWD']
-except:
-    UID = input("Enter UID:")
-    PSWD = input("Enter Password:")
-'''
-
 class Config:
     """
     Project Configuration IO
@@ -26,6 +17,13 @@ class Config:
                 self.conf = json.load(confin)
         except Exception as e:
             print("Config Error: Check {ProjectRoot}/config/config.json: %s", str(e))
+            try:
+                UID = os.environ['UID']
+                PSWD = os.environ['PSWD']
+            except:
+                UID = input("Enter UID:")
+                PSWD = input("Enter Password:")
+
             # default
             self.conf = {
                 "Projects": PROJECT_ROOT,
