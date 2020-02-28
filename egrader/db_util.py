@@ -92,13 +92,13 @@ class DBUtil:
     def get_spacy_labeled_essays(self, test_type, merge_0_1=True, with_topic=False, mask_number=True, mask_unknown=False):
         if with_topic:
             df = pd.DataFrame(
-                [[e['topic']+'.\r\n'+e['essay'], e['rate']] for e in self.remote_ec.find({'$and': [{'type': test_type}, {'rate': {'$gte': 0}}]})
-                    if type(e['essay']) == str and len(e['essay']) > 100 and '강좌 1' not in e['topic']]
+                [[e['topic'], e['essay'], e['rate']] for e in self.remote_ec.find({'$and': [{'type': test_type}, {'rate': {'$gte': 0}}]})
+                    if type(e['essay']) == str and len(e['essay']) > 100 and '강좌' not in e['topic']]
             )
         else:
             df = pd.DataFrame(
                 [[e['essay'], e['rate']] for e in self.remote_ec.find({'$and': [{'type': test_type}, {'rate': {'$gte': 0}}]})
-                    if type(e['essay']) == str and len(e['essay']) > 100 and '강좌 1' not in e['topic']]
+                    if type(e['essay']) == str and len(e['essay']) > 100 and '강좌' not in e['topic']]
             )
         def int2text(i):
             if i in [0, 1, 2]:
@@ -108,13 +108,15 @@ class DBUtil:
             else:
                 return "2"
     #            return "{:d}".format(int((i-1)/2))
+        rate_loc = 2 if with_topic else 1
         if merge_0_1:
-            df[1] = df.apply(lambda x: int2text(round(x[1])), axis=1)
-            df.loc[df[1] == 0] = 1
+            df[rate_loc] = df.apply(lambda x: int2text(round(x[rate_loc])), axis=1)
+            df.loc[df[rate_loc] == "0"] = "1"
         else:
-            df[1] = df.apply(lambda x: str(round(x[1])), axis=1)
-            df.loc[df[1] == "0"] = "1"
-        df[0] = df.apply(lambda x: preprocess(x[0], mask_number=mask_number, mask_unknown=mask_unknown), axis=1)
+            df[rate_loc] = df.apply(lambda x: str(round(x[rate_loc])), axis=1)
+            df.loc[df[rate_loc] == "0"] = "1"
+        text_loc = 1 if with_topic else 0
+        df[text_loc] = df.apply(lambda x: preprocess(x[text_loc], mask_number=mask_number, mask_unknown=mask_unknown), axis=1)
 
         return df
 
