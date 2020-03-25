@@ -141,3 +141,7 @@ class DBUtil:
             print("Failed to create TSV| %s | %s", fpath, str(e))
         pass
 
+    def export_json_local(self, test_type):
+        selected_essay = [e for e in self.local_ec.find({'$and': [{'type': test_type}, {'rate': {'$gte': 0}}]})
+                          if len(e['essay']) > 100]
+        return selected_essay
