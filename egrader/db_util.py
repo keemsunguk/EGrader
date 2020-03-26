@@ -1,12 +1,11 @@
 from pymongo import MongoClient
 import pandas as pd
-from egrader.config import config
+from egrader.config import config, PROJECT_ROOT
 import re
 
 conf = config.get_config()
 REMOTE_MONGO = conf['RemoteMongo']
 LOCAL_MONGO = conf['LocalMongo']
-PROJECT_ROOT = conf['Projects']
 
 with open(PROJECT_ROOT+'/data/dictionary.txt', 'r') as rf:
     dictionary = rf.readlines()
