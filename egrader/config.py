@@ -1,10 +1,12 @@
 import json
 import os
+import sys
 
 try:
     PROJECT_ROOT = os.environ['PROJECT_ROOT']
 except:
-    PROJECT_ROOT = '/Users/keemsunguk/Projects/EssayGrader/'
+    PROJECT_ROOT = '/'.join(os.environ['PWD'].split('/')[:-2])
+    print(PROJECT_ROOT)
 
 class Config:
     """
