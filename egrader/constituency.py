@@ -55,13 +55,21 @@ def get_words(node, phrase):
 
 def get_phrase_list(root, term_path):
     phrase_list = []
-    term_node_list = []
-    travel_tree(root, term_path, term_node_list)
-    for t_node in term_node_list:
-        term = get_words(t_node, [])
-        phrase_list.append(' '.join(term))
-    return phrase_list
-
+    if type(term_path[0]) == list:
+        for tp in term_path:
+            term_node_list = []
+            travel_tree(root, tp, term_node_list)
+            for t_node in term_node_list:
+                term = get_words(t_node, [])
+                phrase_list.append(' '.join(term))
+        return phrase_list
+    else:
+        term_node_list = []
+        travel_tree(root, term_path, term_node_list)
+        for t_node in term_node_list:
+            term = get_words(t_node, [])
+            phrase_list.append(' '.join(term))
+        return phrase_list
 
 def add_node(parent, pl, lvl):
     pl = pl.strip()
@@ -100,7 +108,7 @@ boundaries = {
 def generate_python(term, negate, conjunction, definiends):
     template = '''
 def test_^term^(input_str):
-    if len(input_str)^lower_bound^ ^conjunction^ len(input_str) ^upper_bound^:
+    if len(input_str) ^lower_bound^ ^conjunction^ len(input_str) ^upper_bound^:
         return ^return_val^
     else:
         return not ^return_val^
