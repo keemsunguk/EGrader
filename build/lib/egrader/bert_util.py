@@ -5,6 +5,7 @@ import math
 from bert import BertModelLayer
 from bert.loader import StockBertConfig, map_stock_config_to_params, load_stock_weights
 
+
 '''
 Adapter BERT If we decide to use adapter-BERT we need some helpers for freezing the original BERT layers.
 This code is from bert-for-tf2 collab example

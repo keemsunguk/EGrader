@@ -1,5 +1,6 @@
 import tensorflow as tf
 from tensorflow import keras
+from tensorflow.keras.callbacks import ModelCheckpoint
 from datetime import datetime
 from egrader.bert_util import create_learning_rate_scheduler
 
@@ -27,8 +28,10 @@ def train_movie_review(model, data):
     return model
 
 
-def train_essay_grader(model, data, epoch=40, batch_size=16, validation_split=0.1):
+def train_essay_grader(model, data, checkpoint_path, epoch=40, batch_size=16, validation_split=0.1):
     tensorboard_callback = keras.callbacks.TensorBoard(log_dir=log_dir)
+    filepath = checkpoint_path+"/weights-improvement-{epoch:02d}-{val_accuracy:.2f}.hdf5"
+    checkpoint = ModelCheckpoint(filepath, monitor='val_accuracy', verbose=1, save_best_only=True, mode='max')
 
     # model.fit(x=(data.train_x, data.train_x_token_types), y=data.train_y,
     model.fit(x=data.train_x, y=data.train_y,
@@ -41,5 +44,6 @@ def train_essay_grader(model, data, epoch=40, batch_size=16, validation_split=0.
                                                         warmup_epoch_count=20,
                                                         total_epoch_count=epoch),
                          keras.callbacks.EarlyStopping(patience=epoch/2, restore_best_weights=True),
-                         tensorboard_callback])
+                         tensorboard_callback,
+                         checkpoint])
     return model

@@ -31,59 +31,51 @@ def preprocess(text, mask_number=True, mask_unknown=False):
 
 class DBUtil:
     def __init__(self, local_db=False):
-        remote_client = MongoClient(REMOTE_MONGO)
-        self.redb = remote_client['nlp']
-        self.remote_ec = self.redb['essays']
-        self.local_db = local_db
-        if self.local_db:
+        self.essay_collection = None
+        self.edb = None
+        if local_db:
             local_client = MongoClient(LOCAL_MONGO)
-            self.ledb = local_client['essay']
-            self.local_ec = self.ledb['essay']
+            self.edb = local_client['essay']
+            self.essay_collection = self.edb['essay']
+        else:
+            remote_client = MongoClient(REMOTE_MONGO)
+            self.edb = remote_client['nlp']
+            self.essay_collection = self.edb['essays']
+
 
     def describe_db(self):
         try:
-            if self.local_db:
-                print('==== LOCAL ====')
-                print(self.ledb.list_collection_names())
-                print('Total Essay:', self.local_ec.count_documents({}))
-                print('Total SAT:', self.local_ec.count_documents({'$and': [{'type': 'SAT'}, {'rate': {'$gte': 0}}]}))
-                print('Total TOEFL:', self.local_ec.count_documents({'$and': [{'type': 'TOEFL'}, {'rate': {'$gt': 0}}]}))
-                print('Total GRE:', self.local_ec.count_documents({'$and': [{'type': 'GRE'}, {'rate': {'$gte': 0}}]}))
+            print('==== Database Description ====')
+            print(self.edb.list_collection_names())
+            print('Total Essay:', self.essay_collection.count_documents({}))
+            print('Total SAT:', self.essay_collection.count_documents({'$and': [{'type': 'SAT'}, {'rate': {'$gte': 0}}]}))
+            print('Total TOEFL:', self.essay_collection.count_documents({'$and': [{'type': 'TOEFL'}, {'rate': {'$gt': 0}}]}))
+            print('Total GRE:', self.essay_collection.count_documents({'$and': [{'type': 'GRE'}, {'rate': {'$gte': 0}}]}))
         except Exception as e:
-            print("No local mongo connection found: %s", str(e))
-
-        try:
-            print('==== REMOTE ====')
-            print(self.redb.list_collection_names())
-            print('Total Essay:', self.remote_ec.count_documents({}))
-            print('Total SAT:', self.remote_ec.count_documents({'$and': [{'type': 'SAT'}, {'rate': {'$gte': 0}}]}))
-            print('Total TOEFL:', self.remote_ec.count_documents({'$and': [{'type': 'TOEFL'}, {'rate': {'$gt': 0}}]}))
-            print('Total GRE:', self.remote_ec.count_documents({'$and': [{'type': 'GRE'}, {'rate': {'$gte': 0}}]}))
-        except Exception as e:
-            print("No remote mongo connection found: %s", str(e))
+            print("No Mongo connection found: %s", str(e))
 
     def get_sat_essays(self):
-        return [e for e in self.remote_ec.find({'$and': [{'type': 'SAT'}, {'rate': {'$gte': 0}}]})
+        return [e for e in self.essay_collection.find({'$and': [{'type': 'SAT'}, {'rate': {'$gte': 0}}]})
                 if len(e['essay']) > 100]
 
     def get_toefl_essays(self):
-        return [e for e in self.remote_ec.find({'$and': [{'type': 'TOEFL'}, {'rate': {'$gt': 0}}]})
+        return [e for e in self.essay_collection.find({'$and': [{'type': 'TOEFL'}, {'rate': {'$gt': 0}}]})
                 if len(e['essay']) > 100]
 
     def get_gre_essays(self):
-        return [e for e in self.remote_ec.find({'$and': [{'type': 'GRE'}, {'rate': {'$gte': 0}}]})
+        return [e for e in self.essay_collection.find({'$and': [{'type': 'GRE'}, {'rate': {'$gte': 0}}]})
                 if type(e['essay']) == str and len(e['essay']) > 100]
 
     def get_labeled_essays(self, test_type, merge_0_1=True, with_topic=False, mask_number=True, mask_unknown=False):
         if with_topic:
             df = pd.DataFrame(
-                [[e['topic']+'.\r\n'+e['essay'], e['rate']] for e in self.remote_ec.find(
+                [[e['topic']+'.\r\n'+e['essay'], e['rate']] for e in self.essay_collection.find(
                     {'$and': [{'type': test_type}, {'rate': {'$gte': 0}}, {"$expr": {"$gt": [{"$strLenCP": "$essay"}, 100]}}]})
                     if '강좌 1' not in e['topic']]
             )
         else:
             df = pd.DataFrame(
-                [[e['essay'], e['rate']] for e in self.remote_ec.find({'$and': [{'type': test_type}, {'rate': {'$gte': 0}}]})
+                [[e['essay'], e['rate']] for e in self.essay_collection.find({'$and': [{'type': test_type}, {'rate': {'$gte': 0}}]})
                     if type(e['essay']) == str and len(e['essay']) > 100 and '강좌 1' not in e['topic']]
             )
         df[1] = df.apply(lambda x: round(x[1]), axis=1)
@@ -96,12 +88,12 @@ class DBUtil:
     def get_spacy_labeled_essays(self, test_type, merge_0_1=True, with_topic=False, mask_number=True, mask_unknown=False):
         if with_topic:
             df = pd.DataFrame(
-                [[e['topic'], e['essay'], e['rate']] for e in self.remote_ec.find({'$and': [{'type': test_type}, {'rate': {'$gte': 0}}]})
+                [[e['topic'], e['essay'], e['rate']] for e in self.essay_collection.find({'$and': [{'type': test_type}, {'rate': {'$gte': 0}}]})
                     if type(e['essay']) == str and len(e['essay']) > 100 and '강좌' not in e['topic']]
             )
         else:
             df = pd.DataFrame(
-                [[e['essay'], e['rate']] for e in self.remote_ec.find({'$and': [{'type': test_type}, {'rate': {'$gte': 0}}]})
+                [[e['essay'], e['rate']] for e in self.essay_collection.find({'$and': [{'type': test_type}, {'rate': {'$gte': 0}}]})
                     if type(e['essay']) == str and len(e['essay']) > 100 and '강좌' not in e['topic']]
             )
         def int2text(i):
@@ -125,11 +117,11 @@ class DBUtil:
         return df
 
     def get_essays_with_keypharse(self, kph):
-        return [e for e in self.remote_ec.find({'$and': [{'essay': {'$regex': kph}}, {'rate': {'$gte': 0}}]})
+        return [e for e in self.essay_collection.find({'$and': [{'essay': {'$regex': kph}}, {'rate': {'$gte': 0}}]})
                 if type(e['essay']) == str and len(e['essay']) > 100]
 
     def get_essays_with_topic(self, topic):
-        return [e for e in self.remote_ec.find({'$and': [{'topic': {'$regex': topic}}, {'rate': {'$gte': 0}}]})
+        return [e for e in self.essay_collection.find({'$and': [{'topic': {'$regex': topic}}, {'rate': {'$gte': 0}}]})
                 if type(e['essay']) == str and len(e['essay']) > 100]
 
     def export_tsv_labeled_essays(self, test_type, fpath, frac=0.8, random_state=1, merge_0_1=True, with_topic=False):
@@ -146,6 +138,6 @@ class DBUtil:
         pass
 
     def export_json_local(self, test_type):
-        selected_essay = [e for e in self.local_ec.find({'$and': [{'type': test_type}, {'rate': {'$gte': 0}}]})
+        selected_essay = [e for e in self.essay_collection.find({'$and': [{'type': test_type}, {'rate': {'$gte': 0}}]})
                           if len(e['essay']) > 100]
         return selected_essay

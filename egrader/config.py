@@ -26,7 +26,8 @@ class Config:
             try:
                 UID = os.environ['UID']
                 PSWD = os.environ['PSWD']
-            except OSError as os_error:
+            except Exception as e:
+                print(e)
                 UID = input("Enter UID:")
                 PSWD = input("Enter Password:")
 
