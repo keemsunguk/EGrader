@@ -1,0 +1,17 @@
+Metadata-Version: 2.1
+Name: EssayGrader
+Version: 0.0.1
+Summary: AI Engine Grading Essay
+Home-page: https://github.com/keemsunguk/EGrader/tree/master/egrader
+Author: Sunguk Keem
+Author-email: keem@keem.net
+License: UNKNOWN
+Description: # EGrader
+        Grade Essay with ML/AI as automatic as possible
+        
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown

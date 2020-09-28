@@ -1,28 +1,32 @@
 import json
 import os
-import sys
+import pathlib
 
 try:
-    PROJECT_ROOT = os.environ['PROJECT_ROOT']
+    PROJECT_ROOT = os.environ['PROJECT_ROOT']+'/'
 except:
     PROJECT_ROOT = '/'.join(os.environ['PWD'].split('/')[:-2])
     print(PROJECT_ROOT)
 
+
 class Config:
     """
-    Project Configuration IO
+    Project Configuration
     """
 
     def __init__(self):
+        """
+        Load configuration from the project root ./config/config.json
+        """
         try:
-            with open(PROJECT_ROOT+"/config/config.json", "r") as confin:
+            with open(pathlib.Path().joinpath(PROJECT_ROOT, 'config', 'config.json'), "r") as confin:
                 self.conf = json.load(confin)
         except Exception as e:
             print("Config Error: Check {ProjectRoot}/config/config.json: %s", str(e))
             try:
                 UID = os.environ['UID']
                 PSWD = os.environ['PSWD']
-            except:
+            except OSError as os_error:
                 UID = input("Enter UID:")
                 PSWD = input("Enter Password:")
 
@@ -34,7 +38,7 @@ class Config:
                 "LocalMongo": "mongodb://localhost:27017/",
             }
 
-    def get_config(self):
+    def get_config(self) -> json:
         """
         Get configuration
         :return: conf dictionary

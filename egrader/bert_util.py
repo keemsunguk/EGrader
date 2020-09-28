@@ -5,6 +5,7 @@ import math
 from bert import BertModelLayer
 from bert.loader import StockBertConfig, map_stock_config_to_params, load_stock_weights
 
+
 '''
 Adapter BERT If we decide to use adapter-BERT we need some helpers for freezing the original BERT layers.
 This code is from bert-for-tf2 collab example
@@ -75,7 +76,7 @@ def create_model(max_seq_len, bert_config_file, bert_ckpt_file, adapter_size=64)
     cls_out = keras.layers.Dropout(0.5)(cls_out)
     logits = keras.layers.Dense(units=768, activation="tanh")(cls_out)
     logits = keras.layers.Dropout(0.5)(logits)
-    logits = keras.layers.Dense(units=7, activation="softmax")(logits)
+    logits = keras.layers.Dense(units=6, activation="softmax")(logits)
 
     # model = keras.Model(inputs=[input_ids, token_type_ids], outputs=logits)
     # model.build(input_shape=[(None, max_seq_len), (None, max_seq_len)])
