@@ -1,2 +1,4 @@
 # EGrader
-Grade Essay with ML/AI as automatic as possible
+This is a personal project to grade
+student essays based on the model(s) as automatic as possible.
+ß
